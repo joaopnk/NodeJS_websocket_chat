@@ -1,0 +1,132 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<!-- https://github.com/joaopnk -->
+
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <script src="https://cdn.socket.io/4.4.0/socket.io.min.js"
+        integrity="sha384-1fOn6VtTq3PWwfsOrk45LnYcGosJwzMHv+Xh/Jx5303FVOXzEnw0EpLv30mtjmlj"
+        crossorigin="anonymous"></script>
+    <title>WebSocket - CHAT</title>
+
+    <!-- UIkit CSS -->
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/uikit@3.9.4/dist/css/uikit.min.css" />
+
+    <!-- UIkit JS -->
+    <script src="https://cdn.jsdelivr.net/npm/uikit@3.9.4/dist/js/uikit.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/uikit@3.9.4/dist/js/uikit-icons.min.js"></script>
+
+    <style>
+        #mensagens {
+            height: 400px;
+            overflow: auto;
+            border-radius: 6px;
+            background-color: #fff;
+            margin: 1%;
+            padding: 1%;
+        }
+
+        .container_all {
+            background-color: #303F9F;
+            border-radius: 4px;
+            width: 80%;
+            margin: 0 auto;
+            margin-top: 3% !important;
+
+            text-align: center;
+
+        }
+
+        .txts {
+            display: flex;
+            justify-content: space-around;
+        }
+
+        h3 {
+            text-transform: uppercase;
+
+            color: #fff;
+        }
+
+        .background_1 {
+            background-color: #3F51B5;
+            color: #FFFFFF;
+            border-radius: 4px;
+        }
+
+        .background_2 {
+            background-color: #C5CAE9;
+            color: #000;
+            border-radius: 4px;
+        }
+    </style>
+    <script>
+        const socket = io("http://localhost:3333", {
+            transports: ['websocket']
+        });
+
+        socket.on('chat', (res) => {
+            EscreverMensagemEmTela(res.usuario, res.mensagem);
+        })
+
+        function enviar() {
+
+            const usuario = document.querySelector('#usuario').value;
+            const mensagem = document.querySelector('#mensagem').value;
+
+            socket.emit('chat', {
+                usuario, mensagem
+            });
+
+            EscreverMensagemEmTela('Eu', mensagem);
+        }
+
+        function EscreverMensagemEmTela(usuario, mensagem) {
+            //Se for Eu = aplica a class alert-sucess, se não, alert-light
+            let bg = usuario === 'Eu' ? 'background_1' : 'background_2';
+            let mensagemHTML = document.querySelector('#mensagens').innerHTML;
+
+
+            mensagemHTML += `<div class=" ${bg}">
+                                <h4 class="uk-text-bold">${usuario}</h4>
+                                <p class="uk-text-normal">${mensagem}</p>
+                            </div>`;
+
+            document.querySelector('#mensagens').innerHTML = mensagemHTML;
+            document.querySelector('#mensagens').scrollTo(0, document.body.scrollHeight);
+            document.querySelector('#mensagem').value = "";
+        }
+
+    </script>
+</head>
+
+<body>
+    <div class="uk-container uk-container-small">
+        <div class="container_all">
+            <br>
+            <!-- [DIV] AONDE VAI RECEBER AS NOVAS MENSAGENS -->
+            <div class="uk-container-xsmall" id="mensagens">
+            </div>
+            <br>
+            <div class="txts">
+                <div class="uk-inline" style="width: 35%;">
+                    <span class="uk-form-icon" uk-icon="icon: user"></span>
+                    <input autocomplete="off" id="usuario" class="uk-input" type="text" placeholder="username">
+                </div>
+                <div class="uk-inline" style="width: 35%;">
+                    <span class="uk-form-icon" uk-icon="icon: commenting"></span>
+                    <input autocomplete="off" id="mensagem" class="uk-input" type="text" placeholder="Mensagem..">
+                </div>
+                <button class="uk-button uk-button-primary" onclick="enviar();" style="width: 25%;">ENVIAR</button>
+            </div>
+            <br>
+
+        </div>
+
+
+    </div>
+</body>
+
+</html>
